@@ -82,25 +82,30 @@ class GradientDescentLearningRule(nn.Module):
             self.norm_information[key + "_grad_var"] = torch.var(names_grads_wrt_params_dict[key]).item()
 
 
-            self.norm_information[key + "_weight_mean"] = torch.mean(names_weights_dict[key]).item()
-            self.norm_information[key + "_weight_L1norm"] = torch.norm(names_weights_dict[key], p=1).item()
-            self.norm_information[key + "_weight_L2norm"] = torch.norm(names_weights_dict[key], p=2).item()
-            self.norm_information[key + "_weight_var"] = torch.var(names_weights_dict[key]).item()
-
+            ############ 삭제 ##########
+            # self.norm_information[key + "_weight_mean"] = torch.mean(names_weights_dict[key]).item()
+            # self.norm_information[key + "_weight_L1norm"] = torch.norm(names_weights_dict[key], p=1).item()
+            # self.norm_information[key + "_weight_L2norm"] = torch.norm(names_weights_dict[key], p=2).item()
+            # self.norm_information[key + "_weight_var"] = torch.var(names_weights_dict[key]).item()
+            ###########################
 
             if self.args.arbiter:
 
                 self.norm_information[key + "_alpha"] = generated_alpha_params[key].item()
+                self.norm_information[key + "_apply_alpha"] = generated_alpha_params[key] *  names_grads_wrt_params_dict[key]
 
                 updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * \
-                                                  generated_alpha_params[key] * \
-                                                  (names_grads_wrt_params_dict[key] / torch.norm(
-                                                      names_grads_wrt_params_dict[key]))
+                                                  generated_alpha_params[key] *  names_grads_wrt_params_dict[key] / torch.norm(names_grads_wrt_params_dict[key])
 
 
             else:
                 updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * \
                                                   names_grads_wrt_params_dict[key]
+
+            self.norm_information[key + "_weight_mean"] = torch.mean(names_weights_dict[key]).item()
+            self.norm_information[key + "_weight_L1norm"] = torch.norm(names_weights_dict[key], p=1).item()
+            self.norm_information[key + "_weight_L2norm"] = torch.norm(names_weights_dict[key], p=2).item()
+            self.norm_information[key + "_weight_var"] = torch.var(names_weights_dict[key]).item()
 
         if os.path.exists(self.args.experiment_name + '/' + self.args.experiment_name + "_inner_loop.csv"):
             self.innerloop_excel = False
