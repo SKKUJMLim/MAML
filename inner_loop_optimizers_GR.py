@@ -91,8 +91,6 @@ class GradientDescentLearningRule(nn.Module):
 
                 updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * applied_gradient
 
-                # updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * \
-                #                                   generated_alpha_params[key] *  names_grads_wrt_params_dict[key] / torch.norm(names_grads_wrt_params_dict[key])
             else:
 
                 # MAML
