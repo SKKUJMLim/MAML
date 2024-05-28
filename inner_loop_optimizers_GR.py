@@ -74,9 +74,11 @@ class GradientDescentLearningRule(nn.Module):
 
         self.norm_information['num_step'] = num_step
 
+        all_grads = []
+        all_weights = []
         for key in names_grads_wrt_params_dict.keys():
 
-            #####
+            ##### Arbiter와 MAML을 위한 if문 #####
             if self.args.arbiter:
 
                 self.norm_information[key + "_alpha"] = generated_alpha_params[key].item()
@@ -91,6 +93,9 @@ class GradientDescentLearningRule(nn.Module):
 
                 updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * applied_gradient
 
+                all_grads.append(applied_gradient.flatten())
+                all_weights.append(updated_names_weights_dict[key].flatten())
+
             else:
 
                 # MAML
@@ -101,13 +106,29 @@ class GradientDescentLearningRule(nn.Module):
 
                 updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * \
                                                   names_grads_wrt_params_dict[key]
+
+                all_grads.append(names_grads_wrt_params_dict[key].flatten())
+                all_weights.append(updated_names_weights_dict[key].flatten())
             ############## if문 종료
 
-            ## updated_names_weights_dict를 기록해야할까?
-            self.norm_information[key + "_weight_mean"] = torch.mean(names_weights_dict[key]).item()
-            self.norm_information[key + "_weight_L1norm"] = torch.norm(names_weights_dict[key], p=1).item()
-            self.norm_information[key + "_weight_L2norm"] = torch.norm(names_weights_dict[key], p=2).item()
-            self.norm_information[key + "_weight_var"] = torch.var(names_weights_dict[key]).item()
+            self.norm_information[key + "_weight_mean"] = torch.mean(updated_names_weights_dict[key]).item()
+            self.norm_information[key + "_weight_L1norm"] = torch.norm(updated_names_weights_dict[key], p=1).item()
+            self.norm_information[key + "_weight_L2norm"] = torch.norm(updated_names_weights_dict[key], p=2).item()
+            self.norm_information[key + "_weight_var"] = torch.var(updated_names_weights_dict[key]).item()
+
+        ### for문 종료
+
+        # Layer 별이 아닌 전체 모델 정보를 기록
+        all_grads = torch.cat(all_grads)
+        all_weights = torch.cat(all_weights)
+        ## 1. Gradient Variance
+        self.norm_information['all_grads_var'] = torch.var(all_grads).item()
+        ## 2. Gradient L2 Norm
+        self.norm_information['all_grads_l2norm'] = torch.norm(all_grads, p=2).item()
+        ## 3. Weight L2 Norm
+        self.norm_information['all_weights_norm'] = torch.norm(all_weights, p=2).item()
+        ## 4. Weight Variance
+        self.norm_information['all_weights_var'] = torch.var(all_weights).item()
 
         if os.path.exists(self.args.experiment_name + '/' + self.args.experiment_name + "_inner_loop.csv"):
             self.innerloop_excel = False
