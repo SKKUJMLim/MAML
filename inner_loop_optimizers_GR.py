@@ -90,6 +90,7 @@ class GradientDescentLearningRule(nn.Module):
                 self.norm_information[key + "_grad_L1norm"] = torch.norm(applied_gradient, p=1).item()
                 self.norm_information[key + "_grad_L2norm"] = torch.norm(applied_gradient, p=2).item()
                 self.norm_information[key + "_grad_var"] = torch.var(applied_gradient).item()
+                self.norm_information[key + "_gsnr"] = torch.mean(applied_gradient).item() ** 2 / torch.var(applied_gradient).item()
 
                 updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * applied_gradient
 
@@ -121,14 +122,23 @@ class GradientDescentLearningRule(nn.Module):
         # Layer 별이 아닌 전체 모델 정보를 기록
         all_grads = torch.cat(all_grads)
         all_weights = torch.cat(all_weights)
+
         ## 1. Gradient Variance
         self.norm_information['all_grads_var'] = torch.var(all_grads).item()
         ## 2. Gradient L2 Norm
         self.norm_information['all_grads_l2norm'] = torch.norm(all_grads, p=2).item()
-        ## 3. Weight L2 Norm
+        ## 3. Gradient L2 Norm
+        self.norm_information['all_grads_mean'] = torch.mean(all_grads).item()
+
+        ## 4. Weight L2 Norm
         self.norm_information['all_weights_norm'] = torch.norm(all_weights, p=2).item()
-        ## 4. Weight Variance
+        ## 5. Weight Variance
         self.norm_information['all_weights_var'] = torch.var(all_weights).item()
+        ## 6. Gradient L2 Norm
+        self.norm_information['all_weights_mean'] = torch.mean(all_weights).item()
+
+        ## 7. GSNR
+        self.norm_information['gsnr'] = torch.mean(all_weights).item() ** 2 / torch.var(all_weights).item()
 
         if os.path.exists(self.args.experiment_name + '/' + self.args.experiment_name + "_inner_loop.csv"):
             self.innerloop_excel = False
