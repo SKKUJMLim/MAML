@@ -135,7 +135,7 @@ class GradientDescentLearningRule(nn.Module):
         self.norm_information['all_weights_norm'] = torch.norm(all_weights, p=2).item()
         ## 5. Weight Variance
         self.norm_information['all_weights_var'] = torch.var(all_weights).item()
-        ## 6. Gradient mean
+        ## 6. Weight mean
         self.norm_information['all_weights_mean'] = torch.mean(all_weights).item()
 
         ## 7. GSNR
