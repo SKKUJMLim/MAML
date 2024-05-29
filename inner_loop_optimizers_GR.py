@@ -104,7 +104,7 @@ class GradientDescentLearningRule(nn.Module):
                 self.norm_information[key + "_grad_L1norm"] = torch.norm(names_grads_wrt_params_dict[key], p=1).item()
                 self.norm_information[key + "_grad_L2norm"] = torch.norm(names_grads_wrt_params_dict[key], p=2).item()
                 self.norm_information[key + "_grad_var"] = torch.var(names_grads_wrt_params_dict[key]).item()
-                self.norm_information[key + "_gsnr"] = torch.mean(applied_gradient).item() ** 2 / torch.var(applied_gradient).item()
+                self.norm_information[key + "_gsnr"] = torch.mean(names_grads_wrt_params_dict[key]).item() ** 2 / torch.var(names_grads_wrt_params_dict[key]).item()
 
                 updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * \
                                                   names_grads_wrt_params_dict[key]
@@ -139,7 +139,7 @@ class GradientDescentLearningRule(nn.Module):
         self.norm_information['all_weights_mean'] = torch.mean(all_weights).item()
 
         ## 7. GSNR
-        self.norm_information['gsnr'] = torch.mean(all_weights).item() ** 2 / torch.var(all_weights).item()
+        self.norm_information['gsnr'] = torch.mean(all_grads).item() ** 2 / torch.var(all_grads).item()
 
         if os.path.exists(self.args.experiment_name + '/' + self.args.experiment_name + "_inner_loop.csv"):
             self.innerloop_excel = False
