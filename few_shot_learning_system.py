@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from meta_neural_network_architectures import VGGReLUNormNetwork,ResNet12, Arbiter
+from meta_neural_network_architectures import VGGReLUNormNetwork,ResNet12, Arbiter, StepArbiter
 from inner_loop_optimizers_GR import GradientDescentLearningRule, LSLRGradientDescentLearningRule
 
 def set_torch_seed(seed):
@@ -83,9 +83,10 @@ class MAMLFewShotClassifier(nn.Module):
             # ).to(device=self.device)
 
             self.arbiter = Arbiter(input_dim=input_dim, output_dim=output_dim, args=self.args,
-                                            device=self.device)
+                                           device=self.device)
 
-            # self.arbiter = StepArbiter(input_dim=input_dim, output_dim=output_dim, args=self.args, device=self.device)
+            #self.arbiter = StepArbiter(input_dim=input_dim, output_dim=output_dim, args=self.args,
+            #                           device=self.device)
 
         print("Inner Loop parameters")
         for key, value in self.inner_loop_optimizer.named_parameters():
@@ -295,7 +296,7 @@ class MAMLFewShotClassifier(nn.Module):
                                 per_step_task_embedding.std() + 1e-12)
 
                     generated_gradient_rate = self.arbiter(per_step_task_embedding)
-                    # generated_gradient_rate = self.arbiter(task_state=per_step_task_embedding, num_step=num_step)
+                    #generated_gradient_rate = self.arbiter(task_state=per_step_task_embedding, num_step=num_step)
 
                     g = 0
                     for key in names_weights_copy.keys():
