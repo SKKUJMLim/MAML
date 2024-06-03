@@ -84,7 +84,7 @@ class GradientDescentLearningRule(nn.Module):
                 self.norm_information[key + "_alpha"] = generated_alpha_params[key].item()
 
                 applied_gradient = generated_alpha_params[key] *  \
-                                   names_grads_wrt_params_dict[key] / torch.norm(names_grads_wrt_params_dict[key])
+                                   names_grads_wrt_params_dict[key] / torch.norm(names_grads_wrt_params_dict[key], p=2)
 
                 self.norm_information[key + "_grad_mean"] = torch.mean(applied_gradient).item()
                 self.norm_information[key + "_grad_L1norm"] = torch.norm(applied_gradient, p=1).item()
