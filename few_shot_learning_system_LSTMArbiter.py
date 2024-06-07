@@ -82,8 +82,12 @@ class MAMLFewShotClassifier(nn.Module):
             #     nn.Softplus() # CxGrad
             # ).to(device=self.device)
 
-            self.arbiter = Arbiter(input_dim=input_dim, output_dim=output_dim, args=self.args,
-                                           device=self.device)
+            # self.arbiter = Arbiter(input_dim=input_dim, output_dim=output_dim, args=self.args,
+            #                                device=self.device)
+
+            self.arbiter = LSTMArbiter(input_size=10, hidden_size=32, num_layers=1, output_size=output_dim,
+                                       args=self.args, device=self.device)
+
 
             #self.arbiter = StepArbiter(input_dim=input_dim, output_dim=output_dim, args=self.args,
             #                           device=self.device)
@@ -281,23 +285,23 @@ class MAMLFewShotClassifier(nn.Module):
 
                     per_step_task_embedding = []
 
-                    # 1) Calculate weight norm
+                    # Calculate weight norm
                     for key, weight in names_weights_copy.items():
                         weight_norm = torch.norm(weight, p=2)
                         per_step_task_embedding.append(weight_norm)
 
-                    # 2) Calculate moving average of weight norm
+                    # Calculate moving average of weight norm
                     for key, weight in names_weights_copy.items():
                         weight_norm = torch.norm(weight, p=2)
                         ema_value_wn = ema_calculator_wn.update(key, weight_norm)
                         per_step_task_embedding.append(ema_value_wn)
 
-                    # 3) Calculate gradient norm
+                    # Calculate gradient norm
                     for key, grad in names_grads_copy.items():
                         gradient_norm = torch.norm(grad, p=2)
                         per_step_task_embedding.append(gradient_norm)
 
-                    # 4) Calculate moving average of gradient norm
+                    # Calculate moving average of gradient norm
                     for key, grad in names_grads_copy.items():
                         gradient_norm = torch.norm(grad, p=2)
                         ema_value_gn = ema_calculator_gn.update(key, gradient_norm)
@@ -305,17 +309,23 @@ class MAMLFewShotClassifier(nn.Module):
 
                     per_step_task_embedding = torch.stack(per_step_task_embedding)
 
-
                     ## Standardization
                     per_step_task_embedding = (per_step_task_embedding - per_step_task_embedding.mean()) / (
                                 per_step_task_embedding.std() + 1e-12)
+
+                    ## Change to dimensions (4, 10) -> num_layers * 4
+                    per_step_task_embedding = per_step_task_embedding.view(4, 10)
+
+                    # 입력 데이터를 (batch_size, seq_length, input_size) 형태로 변환
+                    per_step_task_embedding = per_step_task_embedding.unsqueeze(0)
 
                     generated_gradient_rate = self.arbiter(per_step_task_embedding)
                     #generated_gradient_rate = self.arbiter(task_state=per_step_task_embedding, num_step=num_step)
 
                     g = 0
                     for key in names_weights_copy.keys():
-                        generated_alpha_params[key] = generated_gradient_rate[g]
+                        # [0]을 왜 추가해야할까???
+                        generated_alpha_params[key] = generated_gradient_rate[0][g]
                         g += 1
 
                 names_weights_copy = self.apply_inner_loop_update(loss=support_loss,
