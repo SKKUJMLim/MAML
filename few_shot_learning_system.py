@@ -72,6 +72,7 @@ class MAMLFewShotClassifier(nn.Module):
         if self.args.arbiter:
             num_layers = len(names_weights_copy)
             input_dim = num_layers * 4
+            # input_dim = num_layers * 2
             output_dim = num_layers
 
             # self.arbiter = nn.Sequential(
