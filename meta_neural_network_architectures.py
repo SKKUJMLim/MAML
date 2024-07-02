@@ -1224,7 +1224,6 @@ class StepArbiter(nn.Module):
             print(name, param.shape)
 
     def build_network(self):
-
         for i in range(self.num_steps):
             self.step_arbiter.append(Arbiter(self.input_dim, self.output_dim, args=self.args, device=self.device))
 
