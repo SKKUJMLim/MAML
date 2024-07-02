@@ -1233,14 +1233,20 @@ class StepArbiter(nn.Module):
 
 # 이동평균 계산 클래스 정의
 class NormEMA:
-    def __init__(self, alpha):
+    def __init__(self, alpha, names_weights_copy, device):
         self.alpha = alpha
         self.ema = {}
+        self.device =device
+
+        # 초기 EMA 값을 0.0으로 설정
+        for key, value in names_weights_copy.items():
+            self.ema[key] = torch.tensor(0).to(self.device)
+
+    def get_EMA(self, layer_name):
+        return self.ema[layer_name]
 
     def update(self, layer_name, norm):
         if layer_name not in self.ema:
             self.ema[layer_name] = norm
         else:
             self.ema[layer_name] = self.alpha * norm + (1 - self.alpha) * self.ema[layer_name]
-
-        return self.ema[layer_name]
