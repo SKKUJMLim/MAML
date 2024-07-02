@@ -90,7 +90,7 @@ class GradientDescentLearningRule(nn.Module):
                 self.norm_information[key + "_grad_L1norm"] = torch.norm(applied_gradient, p=1).item()
                 self.norm_information[key + "_grad_L2norm"] = torch.norm(applied_gradient, p=2).item()
                 self.norm_information[key + "_grad_var"] = torch.var(applied_gradient).item()
-                self.norm_information[key + "_gsnr"] = torch.mean(applied_gradient).item() ** 2 / torch.var(applied_gradient).item()
+                self.norm_information[key + "_gsnr"] = torch.mean(applied_gradient).item() ** 2 / (torch.var(applied_gradient).item() + 1e-8)
 
                 updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * applied_gradient
 
