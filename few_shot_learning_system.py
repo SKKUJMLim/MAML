@@ -290,8 +290,8 @@ class MAMLFewShotClassifier(nn.Module):
                     # 2) Calculate moving average of weight norm
                     for key, weight in names_weights_copy.items():
                         weight_norm = torch.norm(weight, p=2)
-                        ema_value_wn = ema_calculator_wn.get_EMA(key)
                         ema_calculator_wn.update(key, weight_norm)
+                        ema_value_wn = ema_calculator_wn.get_EMA(key)
 
                         per_step_task_embedding.append(ema_value_wn)
 
@@ -303,8 +303,8 @@ class MAMLFewShotClassifier(nn.Module):
                     # 4) Calculate moving average of gradient norm
                     for key, grad in names_grads_copy.items():
                         gradient_norm = torch.norm(grad, p=2)
-                        ema_value_gn = ema_calculator_gn.get_EMA(key)
                         ema_calculator_gn.update(key, gradient_norm)
+                        ema_value_gn = ema_calculator_gn.get_EMA(key)
 
                         per_step_task_embedding.append(ema_value_gn)
 
