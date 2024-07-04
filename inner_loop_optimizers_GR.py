@@ -9,6 +9,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from utils.storage import save_statistics
+import math
 import os
 
 
@@ -26,7 +27,7 @@ class GradientDescentLearningRule(nn.Module):
     will correspond to a stochastic gradient descent learning rule.
     """
 
-    def __init__(self, device, args, learning_rate=1e-3):
+    def __init__(self, device, args, names_weights_dict, learning_rate=1e-3, beta1=0.9, beta2=0.999, epsilon=1e-8):
         """Creates a new learning rule object.
         Args:
             learning_rate: A postive scalar to scale gradient updates to the
@@ -45,6 +46,30 @@ class GradientDescentLearningRule(nn.Module):
         self.norm_information = {}
         self.innerloop_excel = True
 
+        ## Momentum
+        if self.args.momentum == "Adam":
+
+            self.beta1 = beta1
+            self.beta2 = beta2
+            self.epsilon = epsilon
+            self.t = 0
+            self.m = {}
+            self.v = {}
+
+            for name, param in names_weights_dict.items():
+                self.m[name] = torch.zeros_like(param)
+                self.v[name] = torch.zeros_like(param)
+
+    def momentum_reset(self, names_weights_dict):
+        self.t = 0
+        self.m = {}
+        self.v = {}
+
+        for name, param in names_weights_dict.items():
+            self.m[name] = torch.zeros_like(param)
+            self.v[name] = torch.zeros_like(param)
+
+
     def update_params(self, names_weights_dict, names_grads_wrt_params_dict, generated_alpha_params, num_step, current_iter, training_phase):
         """Applies a single gradient descent update to all parameters.
         All parameter updates are performed using in-place operations and so
@@ -57,7 +82,6 @@ class GradientDescentLearningRule(nn.Module):
 
         updated_names_weights_dict = dict()
 
-        #### 추가 ####
         if current_iter == 'test':
             try:
                 self.norm_information['current_iter'] = os.environ["TEST_DATASET"]
@@ -76,6 +100,9 @@ class GradientDescentLearningRule(nn.Module):
 
         all_grads = []
         all_weights = []
+
+        self.t += 1
+
         for key in names_grads_wrt_params_dict.keys():
 
             ##### Arbiter와 MAML을 위한 if문 #####
@@ -83,8 +110,7 @@ class GradientDescentLearningRule(nn.Module):
 
                 self.norm_information[key + "_alpha"] = generated_alpha_params[key].item()
 
-                applied_gradient = generated_alpha_params[key] *  \
-                                   names_grads_wrt_params_dict[key] / torch.norm(names_grads_wrt_params_dict[key])
+                applied_gradient = generated_alpha_params[key] *  names_grads_wrt_params_dict[key] / torch.norm(names_grads_wrt_params_dict[key])
 
                 self.norm_information[key + "_grad_mean"] = torch.mean(applied_gradient).item()
                 self.norm_information[key + "_grad_L1norm"] = torch.norm(applied_gradient, p=1).item()
@@ -92,7 +118,27 @@ class GradientDescentLearningRule(nn.Module):
                 self.norm_information[key + "_grad_var"] = torch.var(applied_gradient).item()
                 self.norm_information[key + "_gsnr"] = torch.mean(applied_gradient).item() ** 2 / (torch.var(applied_gradient).item() + 1e-7)
 
-                updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * applied_gradient
+                if self.args.momentum == "Adam":
+
+                    # Update biased first moment estimate
+                    self.m[key] = self.beta1 * self.m[key] + (1 - self.beta1) * applied_gradient
+
+                    # Update biased second moment estimate
+                    self.v[key] = self.beta2 * self.v[key] + (1 - self.beta2) * (applied_gradient ** 2)
+
+                    # Compute bias-corrected first moment estimate
+                    m_hat = self.m[key] / (1 - self.beta1 ** self.t)
+
+                    # Compute bias-corrected second moment estimate
+                    v_hat = self.v[key] / (1 - self.beta2 ** self.t)
+
+                    # Adam Update
+                    #updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * m_hat / (torch.sqrt(v_hat + self.epsilon) + self.epsilon)
+                    updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * m_hat / (torch.sqrt(v_hat + self.epsilon))
+
+                else:
+                    # SGD Update
+                    updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * applied_gradient
 
                 all_grads.append(applied_gradient.flatten())
                 all_weights.append(updated_names_weights_dict[key].flatten())
@@ -119,6 +165,10 @@ class GradientDescentLearningRule(nn.Module):
             self.norm_information[key + "_weight_var"] = torch.var(updated_names_weights_dict[key]).item()
 
         ### for문 종료
+
+        if self.args.momentum == 'Adam':
+            if num_step == (self.args.number_of_training_steps_per_iter - 1):
+                self.momentum_reset(names_weights_dict)
 
         # Layer 별이 아닌 전체 모델 정보를 기록
         all_grads = torch.cat(all_grads)

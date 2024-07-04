@@ -65,7 +65,8 @@ class MAMLFewShotClassifier(nn.Module):
         else:
             self.inner_loop_optimizer = GradientDescentLearningRule(device=device,
                                                                     args=self.args,
-                                                                    learning_rate=self.task_learning_rate)
+                                                                    learning_rate=self.task_learning_rate,
+                                                                    names_weights_dict=names_weights_copy)
 
 
         # Gradient Arbiter
@@ -233,6 +234,7 @@ class MAMLFewShotClassifier(nn.Module):
         total_losses = []
         total_accuracies = []
         per_task_target_preds = [[] for i in range(len(x_target_set))]
+
         self.classifier.zero_grad()
         task_accuracies = []
         for task_id, (x_support_set_task, y_support_set_task, x_target_set_task, y_target_set_task) in enumerate(zip(x_support_set,
@@ -241,6 +243,8 @@ class MAMLFewShotClassifier(nn.Module):
                               y_target_set)):
             task_losses = []
             per_step_loss_importance_vectors = self.get_per_step_loss_importance_vector()
+
+
             names_weights_copy = self.get_inner_loop_parameter_dict(self.classifier.named_parameters())
 
             num_devices = torch.cuda.device_count() if torch.cuda.is_available() else 1
@@ -256,6 +260,8 @@ class MAMLFewShotClassifier(nn.Module):
             y_support_set_task = y_support_set_task.view(-1)
             x_target_set_task = x_target_set_task.view(-1, c, h, w)
             y_target_set_task = y_target_set_task.view(-1)
+
+            # print("names_weights_copy == ", names_weights_copy)
 
             ema_calculator_wn = NormEMA(alpha=0.1, names_weights_copy=names_weights_copy, device=self.device) # To calculate the moving average of weight norm
             ema_calculator_gn = NormEMA(alpha=0.1, names_weights_copy=names_weights_copy, device=self.device) # To calculate the moving average of gradient norm
@@ -275,6 +281,7 @@ class MAMLFewShotClassifier(nn.Module):
                 generated_alpha_params = {}
 
                 if self.args.arbiter:
+
                     support_loss_grad = torch.autograd.grad(support_loss, names_weights_copy.values(),
                                                             retain_graph=True)
 
@@ -310,7 +317,6 @@ class MAMLFewShotClassifier(nn.Module):
 
                     per_step_task_embedding = torch.stack(per_step_task_embedding)
 
-
                     ## Standardization
                     per_step_task_embedding = (per_step_task_embedding - per_step_task_embedding.mean()) / (
                                 per_step_task_embedding.std() + 1e-12)
@@ -344,7 +350,6 @@ class MAMLFewShotClassifier(nn.Module):
                                                                  backup_running_statistics=False, training=True,
                                                                  num_step=num_step, training_phase=training_phase,
                                                                  epoch=epoch)
-
                     task_losses.append(target_loss)
             ## Inner-loop END
 
@@ -445,9 +450,9 @@ class MAMLFewShotClassifier(nn.Module):
         # for name, param in self.step_arbiter.named_parameters():
         #     prev_weights[name] = param.data.clone()
 
+        # torch.autograd.set_detect_anomaly(True)
         self.optimizer.zero_grad()
         loss.backward()
-
         self.optimizer.step()
 
         # 가중치 업데이트 확인
@@ -455,6 +460,7 @@ class MAMLFewShotClassifier(nn.Module):
         #     if not torch.equal(prev_weights[name], param.data):
         #         print(f"{name} 가중치가 업데이트되었습니다.")
         #         prev_weights[name] = param.data.clone()
+
 
     def run_train_iter(self, data_batch, epoch, current_iter):
         """
