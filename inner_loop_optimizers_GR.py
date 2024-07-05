@@ -81,6 +81,7 @@ class GradientDescentLearningRule(nn.Module):
         """
 
         updated_names_weights_dict = dict()
+        updated_names_grads_wrt_params_dict = dict()
 
         if current_iter == 'test':
             try:
@@ -139,17 +140,18 @@ class GradientDescentLearningRule(nn.Module):
 
                     # Adam Update
                     #updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * m_hat / (torch.sqrt(v_hat + self.epsilon) + self.epsilon)
-                    updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * m_hat / (torch.sqrt(v_hat + self.epsilon))
+                    updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate / (torch.sqrt(v_hat + self.epsilon)) * m_hat
+                    updated_names_grads_wrt_params_dict[key] = m_hat
 
                 else:
                     # SGD Update
+                    updated_names_grads_wrt_params_dict[key] = applied_gradient
                     updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * applied_gradient
 
                 all_grads.append(applied_gradient.flatten())
                 all_weights.append(updated_names_weights_dict[key].flatten())
 
             else:
-
                 # MAML
                 self.norm_information[key + "_grad_mean"] = torch.mean(names_grads_wrt_params_dict[key]).item()
                 self.norm_information[key + "_grad_L1norm"] = torch.norm(names_grads_wrt_params_dict[key], p=1).item()
@@ -159,6 +161,8 @@ class GradientDescentLearningRule(nn.Module):
 
                 updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * \
                                                   names_grads_wrt_params_dict[key]
+
+                updated_names_grads_wrt_params_dict[key] = names_grads_wrt_params_dict[key]
 
                 all_grads.append(names_grads_wrt_params_dict[key].flatten())
                 all_weights.append(updated_names_weights_dict[key].flatten())
@@ -212,7 +216,7 @@ class GradientDescentLearningRule(nn.Module):
                             line_to_add=list(self.norm_information.values()),
                             filename=self.args.experiment_name + "_inner_loop.csv", create=False)
 
-        return updated_names_weights_dict
+        return updated_names_weights_dict, updated_names_grads_wrt_params_dict
 
 
 class LSLRGradientDescentLearningRule(nn.Module):

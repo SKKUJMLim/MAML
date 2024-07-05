@@ -186,7 +186,7 @@ class MAMLFewShotClassifier(nn.Module):
             names_grads_copy[key] = names_grads_copy[key].sum(dim=0)
 
 
-        names_weights_copy = self.inner_loop_optimizer.update_params(names_weights_dict=names_weights_copy,
+        names_weights_copy, names_grads_copy = self.inner_loop_optimizer.update_params(names_weights_dict=names_weights_copy,
                                                                      names_grads_wrt_params_dict=names_grads_copy,
                                                                      generated_alpha_params=alpha,
                                                                      num_step=current_step_idx,
@@ -200,7 +200,7 @@ class MAMLFewShotClassifier(nn.Module):
             name, value in names_weights_copy.items()}
 
 
-        return names_weights_copy
+        return names_weights_copy, names_grads_copy
 
     def get_across_task_loss_metrics(self, total_losses, total_accuracies):
 
@@ -289,30 +289,20 @@ class MAMLFewShotClassifier(nn.Module):
 
                     per_step_task_embedding = []
 
-                    # 1) Calculate weight norm
+                    # 1) Calculate weight norm && moving average of weight norm
                     for key, weight in names_weights_copy.items():
                         weight_norm = torch.norm(weight, p=2)
                         per_step_task_embedding.append(weight_norm)
 
-                    # 2) Calculate moving average of weight norm
-                    for key, weight in names_weights_copy.items():
-                        weight_norm = torch.norm(weight, p=2)
                         ema_value_wn = ema_calculator_wn.get_EMA(key)
-                        ema_calculator_wn.update(key, weight_norm)
-
                         per_step_task_embedding.append(ema_value_wn)
 
-                    # 3) Calculate gradient norm
+                    # 2) Calculate gradient norm && moving average of gradient norm
                     for key, grad in names_grads_copy.items():
                         gradient_norm = torch.norm(grad, p=2)
                         per_step_task_embedding.append(gradient_norm)
 
-                    # 4) Calculate moving average of gradient norm
-                    for key, grad in names_grads_copy.items():
-                        gradient_norm = torch.norm(grad, p=2)
                         ema_value_gn = ema_calculator_gn.get_EMA(key)
-                        ema_calculator_gn.update(key, gradient_norm)
-
                         per_step_task_embedding.append(ema_value_gn)
 
                     per_step_task_embedding = torch.stack(per_step_task_embedding)
@@ -322,20 +312,30 @@ class MAMLFewShotClassifier(nn.Module):
                                 per_step_task_embedding.std() + 1e-12)
 
                     generated_gradient_rate = self.arbiter(per_step_task_embedding)
-                    #generated_gradient_rate = self.arbiter(task_state=per_step_task_embedding, num_step=num_step)
+                    # generated_gradient_rate = self.arbiter(task_state=per_step_task_embedding, num_step=num_step)
 
                     g = 0
                     for key in names_weights_copy.keys():
                         generated_alpha_params[key] = generated_gradient_rate[g]
                         g += 1
 
-                names_weights_copy = self.apply_inner_loop_update(loss=support_loss,
+                names_weights_copy, names_grads_copy = self.apply_inner_loop_update(loss=support_loss,
                                                                   names_weights_copy=names_weights_copy,
                                                                   alpha=generated_alpha_params,
                                                                   use_second_order=use_second_order,
                                                                   current_step_idx=num_step,
                                                                   current_iter=current_iter,
                                                                   training_phase=training_phase)
+
+                # Calculate moving average of weight norm
+                for key, weight in names_weights_copy.items():
+                    weight_norm = torch.norm(weight, p=2)
+                    ema_calculator_wn.update(key, weight_norm)
+
+                # Calculate moving average of gradient norm
+                for key, grad in names_grads_copy.items():
+                    gradient_norm = torch.norm(grad, p=2)
+                    ema_calculator_gn.update(key, gradient_norm)
 
                 if use_multi_step_loss_optimization and training_phase and epoch < self.args.multi_step_loss_num_epochs:
                     target_loss, target_preds = self.net_forward(x=x_target_set_task,
