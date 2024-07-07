@@ -117,11 +117,10 @@ class GradientDescentLearningRule(nn.Module):
 
                 if self.args.momentum == "Adam":
 
-
-                    # weight_decay = 1e-4
-                    # applied_gradient += weight_decay * names_weights_dict[key]
-
                     lr_t = self.learning_rate * torch.sqrt(torch.tensor(1 - self.beta2 ** (num_step+1))) / (1 - self.beta1 ** (num_step+1))
+
+                    weight_decay = 0.05
+                    applied_gradient += weight_decay * names_weights_dict[key]
 
                     # Update biased first moment estimate
                     self.m[key] = self.beta1 * self.m[key] + (1 - self.beta1) * applied_gradient
@@ -136,7 +135,6 @@ class GradientDescentLearningRule(nn.Module):
                     v_hat = self.v[key] / (1 - self.beta2 ** (num_step+1))
 
                     # Adam Update
-                    # updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate / (torch.sqrt(v_hat + self.epsilon)) * m_hat
                     updated_names_grads_wrt_params_dict[key] = applied_gradient
                     updated_names_weights_dict[key] = names_weights_dict[key] - lr_t / (torch.sqrt(v_hat + self.epsilon)) * m_hat
 
