@@ -119,8 +119,8 @@ class GradientDescentLearningRule(nn.Module):
 
                     lr_t = self.learning_rate * torch.sqrt(torch.tensor(1 - self.beta2 ** (num_step+1))) / (1 - self.beta1 ** (num_step+1))
 
-                    weight_decay = 0.05
-                    applied_gradient += weight_decay * names_weights_dict[key]
+                    # weight_decay = 0.05
+                    # applied_gradient += weight_decay * names_weights_dict[key]
 
                     # Update biased first moment estimate
                     self.m[key] = self.beta1 * self.m[key] + (1 - self.beta1) * applied_gradient
