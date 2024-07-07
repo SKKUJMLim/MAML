@@ -137,7 +137,7 @@ class GradientDescentLearningRule(nn.Module):
 
                     # Adam Update
                     # updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate / (torch.sqrt(v_hat + self.epsilon)) * m_hat
-                    updated_names_grads_wrt_params_dict[key] = 1 / (torch.sqrt(v_hat + self.epsilon)) * m_hat
+                    updated_names_grads_wrt_params_dict[key] = applied_gradient
                     updated_names_weights_dict[key] = names_weights_dict[key] - lr_t / (torch.sqrt(v_hat + self.epsilon)) * m_hat
 
                 else:
