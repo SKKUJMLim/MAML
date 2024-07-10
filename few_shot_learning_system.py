@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from meta_neural_network_architectures import VGGReLUNormNetwork,ResNet12, Arbiter, StepArbiter, NormEMA, LSTMArbiter
-from inner_loop_optimizers_Adam import GradientDescentLearningRule, LSLRGradientDescentLearningRule
+from inner_loop_optimizers_GR import GradientDescentLearningRule, LSLRGradientDescentLearningRule
 
 def set_torch_seed(seed):
     """
