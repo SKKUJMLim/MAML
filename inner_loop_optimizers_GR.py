@@ -117,8 +117,8 @@ class GradientDescentLearningRule(nn.Module):
 
                 if self.args.momentum == "Adam":
 
-                    weight_decay = 0.001
-                    applied_gradient += weight_decay * names_weights_dict[key]
+                    # weight_decay = 0.001
+                    # applied_gradient += weight_decay * names_weights_dict[key]
 
                     # Update biased first moment estimate
                     self.m[key] = self.beta1 * self.m[key] + (1 - self.beta1) * applied_gradient
