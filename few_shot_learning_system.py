@@ -293,6 +293,10 @@ class MAMLFewShotClassifier(nn.Module):
                     for key, weight in names_weights_copy.items():
                         weight_norm = torch.norm(weight, p=2)
                         ema_value_wn = ema_calculator_wn.get_EMA(key)
+
+                        if num_step == 0:
+                            ema_calculator_wn.update(key, weight_norm)
+
                         per_step_task_embedding.append(weight_norm)
                         per_step_task_embedding.append(ema_value_wn)
 
@@ -300,6 +304,10 @@ class MAMLFewShotClassifier(nn.Module):
                     for key, grad in names_grads_copy.items():
                         gradient_norm = torch.norm(grad, p=2)
                         ema_value_gn = ema_calculator_gn.get_EMA(key)
+
+                        if num_step == 0:
+                            ema_calculator_gn.update(key, gradient_norm)
+
                         per_step_task_embedding.append(gradient_norm)
                         per_step_task_embedding.append(ema_value_gn)
 
