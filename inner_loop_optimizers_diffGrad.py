@@ -131,7 +131,7 @@ class GradientDescentLearningRule(nn.Module):
 
                     # Calculate diffgrad term
                     diff = torch.abs(applied_gradient - self.prev_grad[key])
-                    diff = np.where(diff > 0, 1.0 / (1.0 + diff), 1.0)
+                    dfc = 1. / (1. + torch.exp(-diff))
 
                     # Update biased first moment estimate
                     self.m[key] = self.beta1 * self.m[key] + (1 - self.beta1) * applied_gradient
