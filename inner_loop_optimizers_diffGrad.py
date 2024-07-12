@@ -152,7 +152,7 @@ class GradientDescentLearningRule(nn.Module):
                     updated_names_grads_wrt_params_dict[key] = applied_gradient
 
                     # Update previous gradient
-                    self.prev_grad[key] = applied_gradient
+                    self.prev_grad[key] = applied_gradient.clone()
 
                 else:
                     # SGD Update
