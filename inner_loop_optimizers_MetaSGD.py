@@ -51,9 +51,9 @@ class GradientDescentLearningRule(nn.Module):
         ## GAP를 위한 함수
         self.names_learning_rates_dict = nn.ParameterDict()
         for idx, (name, param) in enumerate(names_weights_dict.items()):
-            if len(param.shape) == 4:
-                shape = min(list(param.reshape(param.size(0), -1).shape))
-                self.names_learning_rates_dict[name.replace(".", "-")] = torch.nn.Parameter(0.928 * torch.ones(size=[shape], device=self.device, requires_grad=True))
+            self.names_learning_rates_dict[name.replace(".", "-")] = torch.nn.Parameter(
+                self.learning_rate * torch.ones_like(param, requires_grad=True)
+            )
 
     def update_params(self, names_weights_dict, names_grads_wrt_params_dict, num_step, current_iter, training_phase):
         """Applies a single gradient descent update to all parameters.
@@ -87,7 +87,6 @@ class GradientDescentLearningRule(nn.Module):
         all_weights = []
 
         for key in names_grads_wrt_params_dict.keys():
-
 
             grad = self.names_learning_rates_dict[key.replace(".", "-")] * names_grads_wrt_params_dict[key]
 
