@@ -88,10 +88,6 @@ class GradientDescentLearningRule(nn.Module):
 
         for key in names_grads_wrt_params_dict.keys():
 
-            updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * \
-                                              names_grads_wrt_params_dict[key]
-
-
             if len(names_weights_dict[key].shape) == 4:
 
                 grad = names_grads_wrt_params_dict[key]
