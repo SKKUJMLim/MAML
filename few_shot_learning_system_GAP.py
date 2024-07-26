@@ -70,27 +70,6 @@ class MAMLFewShotClassifier(nn.Module):
             self.inner_loop_optimizer.initialise(names_weights_dict=names_weights_copy)
 
 
-        # Gradient Arbiter
-        if self.args.arbiter:
-            num_layers = len(names_weights_copy)
-            input_dim = num_layers * 4
-            # input_dim = num_layers * 2
-            output_dim = num_layers
-
-            # self.arbiter = nn.Sequential(
-            #     nn.Linear(input_dim, input_dim),
-            #     nn.ReLU(inplace=True),
-            #     nn.Linear(input_dim, output_dim),
-            #     ## nn.Softplus(beta=2) # GAP
-            #     nn.Softplus() # CxGrad
-            # ).to(device=self.device)
-
-            self.arbiter = Arbiter(input_dim=input_dim, output_dim=output_dim, args=self.args,
-                                           device=self.device)
-
-            #self.arbiter = StepArbiter(input_dim=input_dim, output_dim=output_dim, args=self.args,
-            #                           device=self.device)
-
         print("Inner Loop parameters")
         for key, value in self.inner_loop_optimizer.named_parameters():
             print(key, value.shape)
