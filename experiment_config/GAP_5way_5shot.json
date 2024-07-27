@@ -44,7 +44,7 @@
   "num_stages":4,
   "conv_padding": true,
   "number_of_training_steps_per_iter":5,
-  "number_of_evaluation_steps_per_iter":5,
+  "number_of_evaluation_steps_per_iter":10,
   "cnn_blocks_per_stage":1,
   "num_classes_per_set":5,
   "num_samples_per_class":5,
