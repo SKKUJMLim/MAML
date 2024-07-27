@@ -115,35 +115,8 @@ class GradientDescentLearningRule(nn.Module):
                 self.norm_information[key + "_grad_var"] = torch.var(applied_gradient).item()
                 self.norm_information[key + "_gsnr"] = torch.mean(applied_gradient).item() ** 2 / (torch.var(applied_gradient).item() + 1e-7)
 
-                if self.args.momentum == "Adam":
-
-                    # weight_decay = 0.001
-                    # applied_gradient += weight_decay * names_weights_dict[key]
-
-                    # Update biased first moment estimate
-                    self.m[key] = self.beta1 * self.m[key] + (1 - self.beta1) * applied_gradient
-
-                    # Update biased second moment estimate
-                    self.v[key] = self.beta2 * self.v[key] + (1 - self.beta2) * (applied_gradient ** 2)
-
-                    # Compute bias-corrected first moment estimate
-                    m_hat = self.m[key] / (1 - self.beta1 ** (num_step+1))
-
-                    # Compute bias-corrected second moment estimate
-                    v_hat = self.v[key] / (1 - self.beta2 ** (num_step+1))
-
-                    # lr_t = self.learning_rate
-                    # lr_t = self.learning_rate / (1 - self.beta1 ** (num_step + 1))
-                    lr_t = self.learning_rate * torch.sqrt(torch.tensor(1 - self.beta2 ** (num_step + 1))) / (1 - self.beta1 ** (num_step + 1))
-
-                    # Adam Update
-                    updated_names_grads_wrt_params_dict[key] = applied_gradient.clone()
-                    updated_names_weights_dict[key] = names_weights_dict[key] - lr_t * m_hat / (torch.sqrt(v_hat + self.epsilon))
-
-                else:
-                    # SGD Update
-                    updated_names_grads_wrt_params_dict[key] = applied_gradient.clone()
-                    updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * applied_gradient
+                updated_names_grads_wrt_params_dict[key] = applied_gradient.clone()
+                updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * applied_gradient
 
                 all_grads.append(applied_gradient.flatten())
                 all_weights.append(updated_names_weights_dict[key].flatten())
