@@ -18,7 +18,7 @@ from multiprocessing import freeze_support
 ## python train_maml_system.py --name_of_args_json_file experiment_config/MAML_filter128.json --gpu_to_use 0
 
 '''GAP experiment'''
-## python train_maml_system.py --name_of_args_json_file experiment_config/GAP_5way_5shot.json --gpu_to_use 0
+## python train_maml_system.py --name_of_args_json_file experiment_config/MAML+GAP_5way_5shot.json --gpu_to_use 0
 
 ''' Resnet experiment'''
 # 1) mini imagenet
