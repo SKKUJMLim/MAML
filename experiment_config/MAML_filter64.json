@@ -57,5 +57,6 @@
   "arbiter": false,
   "use_bias": true,
   "smoothing": false,
-  "knowledge_distillation": false
+  "knowledge_distillation": false,
+  "momentum": "SGD"
 }
