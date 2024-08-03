@@ -55,5 +55,5 @@
   "backbone": "4-CONV",
   "arbiter": true,
   "use_bias": true,
-  "momentum": "Adam"
+  "momentum": "SGD"
 }
