@@ -97,6 +97,9 @@ class GradientDescentLearningRule(nn.Module):
 
         self.norm_information['num_step'] = num_step
 
+
+        pre_all_grads = []
+
         all_grads = []
         all_weights = []
 
@@ -104,6 +107,8 @@ class GradientDescentLearningRule(nn.Module):
 
             ##### Arbiter와 MAML을 위한 if문 #####
             if self.args.arbiter:
+
+                pre_all_grads.append(names_grads_wrt_params_dict[key].flatten())
 
                 self.norm_information[key + "_alpha"] = generated_alpha_params[key].item()
 
@@ -180,6 +185,15 @@ class GradientDescentLearningRule(nn.Module):
         # Layer 별이 아닌 전체 모델 정보를 기록
         all_grads = torch.cat(all_grads)
         all_weights = torch.cat(all_weights)
+
+        ## 0. Arbiter는 gamma 적용 전 Gradient도 기록한다
+        if self.args.arbiter:
+            pre_all_grads = torch.cat(pre_all_grads)
+
+            self.norm_information['pre_all_grads_var'] = torch.var(pre_all_grads).item()
+            self.norm_information['pre_all_grads_l2norm'] = torch.norm(pre_all_grads, p=2).item()
+            self.norm_information['pre_all_grads_mean'] = torch.mean(pre_all_grads).item()
+            self.norm_information['gsnr'] = torch.mean(pre_all_grads).item() ** 2 / torch.var(pre_all_grads).item()
 
         ## 1. Gradient Variance
         self.norm_information['all_grads_var'] = torch.var(all_grads).item()
