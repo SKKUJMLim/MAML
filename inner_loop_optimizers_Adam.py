@@ -193,7 +193,7 @@ class GradientDescentLearningRule(nn.Module):
             self.norm_information['pre_all_grads_var'] = torch.var(pre_all_grads).item()
             self.norm_information['pre_all_grads_l2norm'] = torch.norm(pre_all_grads, p=2).item()
             self.norm_information['pre_all_grads_mean'] = torch.mean(pre_all_grads).item()
-            self.norm_information['gsnr'] = torch.mean(pre_all_grads).item() ** 2 / torch.var(pre_all_grads).item()
+            self.norm_information['pre_gsnr'] = torch.mean(pre_all_grads).item() ** 2 / torch.var(pre_all_grads).item()
 
         ## 1. Gradient Variance
         self.norm_information['all_grads_var'] = torch.var(all_grads).item()
