@@ -68,7 +68,7 @@ class GradientDescentLearningRule(nn.Module):
             self.v[name] = torch.zeros_like(param)
 
 
-    def update_params(self, names_weights_dict, names_grads_wrt_params_dict, generated_alpha_params, num_step, current_iter, training_phase):
+    def update_params(self, support_loss_seperate, names_weights_dict, names_grads_wrt_params_dict, generated_alpha_params, num_step, current_iter, training_phase):
         """Applies a single gradient descent update to all parameters.
         All parameter updates are performed using in-place operations and so
         nothing is returned.
@@ -96,6 +96,12 @@ class GradientDescentLearningRule(nn.Module):
             self.norm_information["phase"] = "val"
 
         self.norm_information['num_step'] = num_step
+
+        # loss 값들의 분포 시각화
+        loss_values = support_loss_seperate.detach().cpu().numpy()
+        self.norm_information['loss_mean'] = loss_values.mean()
+        self.norm_information['loss_var'] = loss_values.var()
+        self.norm_information['loss_std'] = loss_values.std()
 
 
         pre_all_grads = []
@@ -212,21 +218,21 @@ class GradientDescentLearningRule(nn.Module):
         ## 7. GSNR
         self.norm_information['gsnr'] = torch.mean(all_grads).item() ** 2 / torch.var(all_grads).item()
 
-        if os.path.exists(self.args.experiment_name + '/' + self.args.experiment_name + "_inner_loop.csv"):
+        if os.path.exists(self.args.experiment_name + '/' + self.args.experiment_name + "_inner_loop_test.csv"):
             self.innerloop_excel = False
 
         if self.innerloop_excel:
             save_statistics(experiment_name=self.args.experiment_name,
                             line_to_add=list(self.norm_information.keys()),
-                            filename=self.args.experiment_name + "_inner_loop.csv", create=True)
+                            filename=self.args.experiment_name + "_inner_loop_test.csv", create=True)
             self.innerloop_excel = False
             save_statistics(experiment_name=self.args.experiment_name,
                             line_to_add=list(self.norm_information.values()),
-                            filename=self.args.experiment_name + "_inner_loop.csv", create=False)
+                            filename=self.args.experiment_name + "_inner_loop_test.csv", create=False)
         else:
             save_statistics(experiment_name=self.args.experiment_name,
                             line_to_add=list(self.norm_information.values()),
-                            filename=self.args.experiment_name + "_inner_loop.csv", create=False)
+                            filename=self.args.experiment_name + "_inner_loop_test.csv", create=False)
 
         return updated_names_weights_dict, updated_names_grads_wrt_params_dict
 
