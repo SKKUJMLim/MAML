@@ -218,21 +218,21 @@ class GradientDescentLearningRule(nn.Module):
         ## 7. GSNR
         self.norm_information['gsnr'] = torch.mean(all_grads).item() ** 2 / torch.var(all_grads).item()
 
-        if os.path.exists(self.args.experiment_name + '/' + self.args.experiment_name + "_inner_loop_test.csv"):
+        if os.path.exists(self.args.experiment_name + '/' + self.args.experiment_name + "_inner_loop.csv"):
             self.innerloop_excel = False
 
         if self.innerloop_excel:
             save_statistics(experiment_name=self.args.experiment_name,
                             line_to_add=list(self.norm_information.keys()),
-                            filename=self.args.experiment_name + "_inner_loop_test.csv", create=True)
+                            filename=self.args.experiment_name + "_inner_loop.csv", create=True)
             self.innerloop_excel = False
             save_statistics(experiment_name=self.args.experiment_name,
                             line_to_add=list(self.norm_information.values()),
-                            filename=self.args.experiment_name + "_inner_loop_test.csv", create=False)
+                            filename=self.args.experiment_name + "_inner_loop.csv", create=False)
         else:
             save_statistics(experiment_name=self.args.experiment_name,
                             line_to_add=list(self.norm_information.values()),
-                            filename=self.args.experiment_name + "_inner_loop_test.csv", create=False)
+                            filename=self.args.experiment_name + "_inner_loop.csv", create=False)
 
         return updated_names_weights_dict, updated_names_grads_wrt_params_dict
 
