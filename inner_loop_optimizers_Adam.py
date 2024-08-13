@@ -5,6 +5,7 @@ from collections import OrderedDict
 import numpy as np
 import torch
 import torch.nn as nn
+from scipy.stats import skew
 import torch.nn.functional as F
 import torch.optim as optim
 
@@ -102,6 +103,7 @@ class GradientDescentLearningRule(nn.Module):
         self.norm_information['loss_mean'] = loss_values.mean()
         self.norm_information['loss_var'] = loss_values.var()
         self.norm_information['loss_std'] = loss_values.std()
+        self.norm_information['loss_skewness'] = skew(loss_values)
 
 
         pre_all_grads = []
@@ -218,7 +220,7 @@ class GradientDescentLearningRule(nn.Module):
         ## 7. GSNR
         self.norm_information['gsnr'] = torch.mean(all_grads).item() ** 2 / torch.var(all_grads).item()
 
-        if os.path.exists(self.args.experiment_name + '/' + self.args.experiment_name + "_inner_loop.csv"):
+        if os.path.exists(self.args.experiment_name + '/' + self.args.experiment_name + "_inner_loop_test.csv"):
             self.innerloop_excel = False
 
         if self.innerloop_excel:

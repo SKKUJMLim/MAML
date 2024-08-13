@@ -17,6 +17,40 @@ import scipy.linalg as linalg
 from meta_neural_network_architectures import extract_top_level_dict
 
 
+def skewness(tensor):
+    # 데이터의 크기
+    n = tensor.size(0)
+
+    # 평균 계산
+    mean = torch.mean(tensor)
+
+    # 표준편차 계산
+    std_dev = torch.std(tensor, unbiased=True)
+
+    # 3차 중심적률 계산
+    skewness_numerator = torch.sum((tensor - mean) ** 3) / n
+
+    # 비대칭도 계산
+    skewness_value = skewness_numerator / (std_dev ** 3)
+
+    return skewness_value
+
+
+def pearsons_second_skewness_coefficient(tensor):
+    # 평균 계산
+    mean = torch.mean(tensor)
+
+    # 중앙값 계산
+    median = torch.median(tensor)
+
+    # 표준편차 계산
+    std_dev = torch.std(tensor, unbiased=True)
+
+    # 피어슨의 두 번째 비대칭 계수 계산
+    skewness_value = 3 * (mean - median) / std_dev
+
+    return skewness_value
+
 def knowledge_distillation_loss(student_logit, teacher_logit, labels, label_loss_weight=1, soft_label_loss_weight=1, Temperature=1.0):
     """
     Knowledge Distillation Loss를 계산하는 함수
