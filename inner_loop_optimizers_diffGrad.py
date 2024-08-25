@@ -124,7 +124,7 @@ class GradientDescentLearningRule(nn.Module):
                 self.norm_information[key + "_grad_var"] = torch.var(applied_gradient).item()
                 self.norm_information[key + "_gsnr"] = torch.mean(applied_gradient).item() ** 2 / (torch.var(applied_gradient).item() + 1e-7)
 
-                if self.args.momentum == "Adam":
+                if self.args.momentum == "diffGrad":
 
                     # weight_decay = 0.05
                     # applied_gradient += weight_decay * names_weights_dict[key]
