@@ -8,6 +8,7 @@ import torch.optim as optim
 
 from meta_neural_network_architectures import VGGReLUNormNetwork,ResNet12, Arbiter, StepArbiter, NormEMA, LSTMArbiter
 from inner_loop_optimizers_Adam import GradientDescentLearningRule, LSLRGradientDescentLearningRule
+import inner_loop_optimizers_diffGrad
 
 def set_torch_seed(seed):
     """
@@ -63,11 +64,19 @@ class MAMLFewShotClassifier(nn.Module):
                                                                         use_learnable_learning_rates=True)
             self.inner_loop_optimizer.initialise(names_weights_dict=names_weights_copy)
         else:
-            self.inner_loop_optimizer = GradientDescentLearningRule(device=device,
-                                                                    args=self.args,
-                                                                    learning_rate=self.task_learning_rate,
-                                                                    names_weights_dict=names_weights_copy)
 
+            if self.arg.momentum == 'SGD' or 'Adam':
+                self.inner_loop_optimizer = GradientDescentLearningRule(device=device,
+                                                                        args=self.args,
+                                                                        learning_rate=self.task_learning_rate,
+                                                                        names_weights_dict=names_weights_copy)
+            elif self.arg.momentum == 'diffGrad':
+                inner_loop_optimizers_diffGrad.GradientDescentLearningRule(device=device,
+                                                                        args=self.args,
+                                                                        learning_rate=self.task_learning_rate,
+                                                                        names_weights_dict=names_weights_copy)
+            else:
+                print("Optimizer를 설정하지 않음")
 
         # Gradient Arbiter
         if self.args.arbiter:
