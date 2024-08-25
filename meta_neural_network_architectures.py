@@ -145,7 +145,7 @@ class MetaMaxResLayerReLU(nn.Module):
         if self.maxpool:
             out = F.max_pool2d(input=out, kernel_size=(2, 2), stride=2, padding=self.max_padding)
 
-        print(out.shape)
+        # print(out.shape)
 
     def forward(self, x, num_step, params=None, training=False, backup_running_statistics=False):
         """
@@ -285,7 +285,7 @@ class MetaConvNormLayerSwish(nn.Module):
 
         out = F.relu_(out)
 
-        print(out.shape)
+        # print(out.shape)
 
     def forward(self, x, num_step, params=None, training=False, backup_running_statistics=False):
         """
@@ -691,7 +691,7 @@ class MetaConvNormLayerReLU(nn.Module):
 
         out = F.leaky_relu(out)
 
-        print(out.shape)
+        # print(out.shape)
 
     def forward(self, x, num_step, params=None, training=False, backup_running_statistics=False):
         """
@@ -800,7 +800,7 @@ class MetaNormLayerConvReLU(nn.Module):
         self.layer_dict['activation_function_pre'] = nn.LeakyReLU()
 
         out = self.layer_dict['activation_function_pre'].forward(self.conv.forward(out))
-        print(out.shape)
+        # print(out.shape)
 
     def forward(self, x, num_step, params=None, training=False, backup_running_statistics=False):
         """
@@ -882,9 +882,9 @@ class VGGReLUNormNetwork(nn.Module):
         self.meta_classifier = meta_classifier
 
         self.build_network()
-        print("(VGGReLUNormNetwork) meta network params")
-        for name, param in self.named_parameters():
-            print(name, param.shape)
+        # print("(VGGReLUNormNetwork) meta network params")
+        # for name, param in self.named_parameters():
+        #     print(name, param.shape)
 
     def build_network(self):
         """
@@ -1034,9 +1034,9 @@ class ResNet12(nn.Module):
         self.meta_classifier = meta_classifier
 
         self.build_network()
-        print("(ResNet12) meta network params")
-        for name, param in self.named_parameters():
-            print(name, param.shape)
+        # print("(ResNet12) meta network params")
+        # for name, param in self.named_parameters():
+        #     print(name, param.shape)
 
     def build_network(self):
         """
@@ -1076,7 +1076,7 @@ class ResNet12(nn.Module):
                                                     num_filters=self.num_output_classes, use_bias=True)
 
         out = self.layer_dict['linear'](out)
-        print("ResNet12 build", out.shape)
+        # print("ResNet12 build", out.shape)
 
     def forward(self, x, num_step, params=None, training=False, backup_running_statistics=False):
         """
@@ -1156,9 +1156,9 @@ class Arbiter(nn.Module):
         self.linear2 = nn.Linear(input_dim, output_dim)
         self.activation2 = nn.Softplus()
 
-        print("Arbiter")
-        for name, param in self.named_parameters():
-            print(name, param.shape)
+        # print("Arbiter")
+        # for name, param in self.named_parameters():
+        #     print(name, param.shape)
 
     def forward(self, task_state):
 
@@ -1219,9 +1219,9 @@ class StepArbiter(nn.Module):
         self.step_arbiter = nn.ModuleList()
         self.build_network()
 
-        print("Arbiter per step parameter")
-        for name, param in self.named_parameters():
-            print(name, param.shape)
+        # print("Arbiter per step parameter")
+        # for name, param in self.named_parameters():
+        #     print(name, param.shape)
 
     def build_network(self):
         for i in range(self.num_steps):

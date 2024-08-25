@@ -91,17 +91,17 @@ class MAMLFewShotClassifier(nn.Module):
             #                           device=self.device)
 
         print("Inner Loop parameters")
-        for key, value in self.inner_loop_optimizer.named_parameters():
-            print(key, value.shape)
+        # for key, value in self.inner_loop_optimizer.named_parameters():
+        #     print(key, value.shape)
 
         self.use_cuda = args.use_cuda
         self.device = device
         self.args = args
         self.to(device)
         print("Outer Loop parameters")
-        for name, param in self.named_parameters():
-            if param.requires_grad:
-                print(name, param.shape, param.device, param.requires_grad)
+        # for name, param in self.named_parameters():
+        #     if param.requires_grad:
+        #         print(name, param.shape, param.device, param.requires_grad)
 
         self.optimizer = optim.Adam(self.trainable_parameters(), lr=args.meta_learning_rate, amsgrad=False)
         self.scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer=self.optimizer, T_max=self.args.total_epochs,
