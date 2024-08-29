@@ -65,7 +65,7 @@ class MAMLFewShotClassifier(nn.Module):
             self.inner_loop_optimizer.initialise(names_weights_dict=names_weights_copy)
         else:
 
-            if self.arg.momentum == 'SGD' or 'Adam':
+            if self.args.momentum == 'SGD' or 'Adam':
                 self.inner_loop_optimizer = GradientDescentLearningRule(device=device,
                                                                         args=self.args,
                                                                         learning_rate=self.task_learning_rate,
