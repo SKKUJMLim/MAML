@@ -71,7 +71,7 @@ class MAMLFewShotClassifier(nn.Module):
                                                                         learning_rate=self.task_learning_rate,
                                                                         names_weights_dict=names_weights_copy)
             elif self.arg.momentum == 'diffGrad':
-                inner_loop_optimizers_diffGrad.GradientDescentLearningRule(device=device,
+                self.inner_loop_optimizer = inner_loop_optimizers_diffGrad.GradientDescentLearningRule(device=device,
                                                                         args=self.args,
                                                                         learning_rate=self.task_learning_rate,
                                                                         names_weights_dict=names_weights_copy)
