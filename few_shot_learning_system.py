@@ -11,6 +11,7 @@ from inner_loop_optimizers_Adam import GradientDescentLearningRule, LSLRGradient
 import inner_loop_optimizers_diffGrad
 import inner_loop_optimizers_RAdam
 import inner_loop_optimizers_AdamW
+import inner_loop_optimizers_AdamBelief
 
 def set_torch_seed(seed):
     """
@@ -88,6 +89,12 @@ class MAMLFewShotClassifier(nn.Module):
             elif self.args.momentum == 'AdamW':
                 self.inner_loop_optimizer = \
                     inner_loop_optimizers_AdamW.GradientDescentLearningRule(device=device,
+                                                                            args=self.args,
+                                                                            learning_rate=self.task_learning_rate,
+                                                                            names_weights_dict=names_weights_copy)
+            elif self.args.momentum == 'AdamBelief':
+                self.inner_loop_optimizer = \
+                    inner_loop_optimizers_AdamBelief.GradientDescentLearningRule(device=device,
                                                                             args=self.args,
                                                                             learning_rate=self.task_learning_rate,
                                                                             names_weights_dict=names_weights_copy)
