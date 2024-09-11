@@ -47,7 +47,7 @@ class GradientDescentLearningRule(nn.Module):
         self.innerloop_excel = True
 
         ## Momentum
-        if self.args.momentum == "Adam":
+        if self.args.momentum == "RAdam":
 
             self.beta1 = beta1
             self.beta2 = beta2
@@ -115,7 +115,7 @@ class GradientDescentLearningRule(nn.Module):
                 self.norm_information[key + "_grad_var"] = torch.var(applied_gradient).item()
                 self.norm_information[key + "_gsnr"] = torch.mean(applied_gradient).item() ** 2 / (torch.var(applied_gradient).item() + 1e-7)
 
-                if self.args.momentum == "Adam":
+                if self.args.momentum == "RAdam":
 
                     # weight_decay = 0.05
                     # applied_gradient += weight_decay * names_weights_dict[key]
@@ -132,17 +132,25 @@ class GradientDescentLearningRule(nn.Module):
                     # Compute bias-corrected second moment estimate
                     v_hat = self.v[key] / (1 - self.beta2 ** (num_step+1))
 
+                    # lr_t = self.learning_rate
+                    # lr_t = self.learning_rate / (1 - self.beta1 ** (num_step + 1))
+                    # lr_t = self.learning_rate * torch.sqrt(torch.tensor(1 - self.beta2 ** (num_step + 1))) / (
+                    #             1 - self.beta1 ** (num_step + 1))
+
+
                     ######### RAdam Code
-                    # if self.args.momentum == "RAdam":
-                    rho_inf = 2 / (1 - self.beta2) - 1
-                    rho_t = rho_inf - 2 * (num_step+1) * self.beta2 ** (num_step+1) / (1 - self.beta2 ** (num_step+1))
+                    # beta2_t = self.beta2 ** (num_step+1)
+                    rho_inf = 2 / (1 - self.beta2) - 1 # (N_sma_max)
+                    rho_t = rho_inf - 2 * (num_step+1) * self.beta2 ** (num_step+1) / (1 - self.beta2) # (N_sma)
 
                     degenerated_to_sgd_threshold = 5
 
-                    if rho_t > degenerated_to_sgd_threshold:
-                        r_t = np.sqrt((rho_t - 4) * (rho_t - 2) * rho_inf / ((rho_inf - 4) * (rho_inf - 2) * rho_t))
-                        updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * r_t * m_hat / (torch.sqrt(v_hat + self.epsilon))
+                    if rho_t >= degenerated_to_sgd_threshold:
+                        # rectification term 계산
+                        r_t = np.sqrt(
+                            (rho_t - 4) * (rho_t - 2) * rho_inf / ((rho_inf - 4) * (rho_inf - 2) * rho_t))
 
+                        updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * r_t * m_hat / (torch.sqrt(v_hat + self.epsilon))
                     else:
                         updated_names_weights_dict[key] = names_weights_dict[key] - self.learning_rate * m_hat
 
@@ -180,7 +188,7 @@ class GradientDescentLearningRule(nn.Module):
 
         ### for문 종료
 
-        if self.args.momentum == 'Adam':
+        if self.args.momentum == 'RAdam':
             # 하나의 Task에 해당하는 학습이 완료되면, Momentum 정보 초기화
             if num_step == (self.args.number_of_training_steps_per_iter - 1):
                 self.momentum_reset(names_weights_dict)

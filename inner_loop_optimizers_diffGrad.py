@@ -186,7 +186,7 @@ class GradientDescentLearningRule(nn.Module):
 
         ### for문 종료
 
-        if self.args.momentum == 'Adam':
+        if self.args.momentum == 'diffGrad':
             # 하나의 Task에 해당하는 학습이 완료되면, Momentum 정보 초기화
             if num_step == (self.args.number_of_training_steps_per_iter - 1):
                 self.momentum_reset(names_weights_dict)
