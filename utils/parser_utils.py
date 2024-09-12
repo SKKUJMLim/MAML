@@ -91,7 +91,7 @@ def get_args():
             args_dict[key] = os.path.join(os.environ['DATASET_DIR'], args_dict[key])
             print(key, os.path.join(os.environ['DATASET_DIR'], args_dict[key]))
 
-        print(key, args_dict[key], type(args_dict[key]))
+        # print(key, args_dict[key], type(args_dict[key]))
 
     args = Bunch(args_dict)
 
