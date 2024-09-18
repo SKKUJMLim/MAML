@@ -28,7 +28,8 @@ class GradientDescentLearningRule(nn.Module):
     will correspond to a stochastic gradient descent learning rule.
     """
 
-    def __init__(self, device, args, names_weights_dict, learning_rate=1e-3, beta1=0.9, beta2=0.999, epsilon=1e-8, weight_decay=1/4*0.001):
+    def __init__(self, device, args, names_weights_dict, learning_rate=1e-3, beta1=0.9, beta2=0.999, epsilon=1e-8, weight_decay=0.01):
+        # weight_decay=1/4*0.001
         """Creates a new learning rule object.
         Args:
             learning_rate: A postive scalar to scale gradient updates to the
