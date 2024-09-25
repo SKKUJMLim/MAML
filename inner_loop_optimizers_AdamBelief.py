@@ -135,7 +135,7 @@ class GradientDescentLearningRule(nn.Module):
                     self.m[key] = self.beta1 * self.m[key] + (1 - self.beta1) * applied_gradient
 
                     # Update biased second moment estimate
-                    self.v[key] = self.beta2 * self.v[key] + (1 - self.beta2) * (applied_gradient ** 2)
+                    # self.v[key] = self.beta2 * self.v[key] + (1 - self.beta2) * (applied_gradient ** 2)
                     # self.v[key] = self.beta2 * self.v[key] + (1 - self.beta2) * (applied_gradient ** 2)
                     self.v[key] = self.beta2 * self.v[key] + (1 - self.beta2) * ((applied_gradient - self.v[key]) ** 2)
 
