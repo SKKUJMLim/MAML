@@ -104,8 +104,8 @@ class MAMLFewShotClassifier(nn.Module):
         # Gradient Arbiter
         if self.args.arbiter:
             num_layers = len(names_weights_copy)
-            # input_dim = num_layers * 4
-            input_dim = num_layers * 2
+            input_dim = num_layers * 4
+            # input_dim = num_layers * 2
             output_dim = num_layers
 
             # self.arbiter = nn.Sequential(
@@ -295,6 +295,9 @@ class MAMLFewShotClassifier(nn.Module):
 
             # print("names_weights_copy == ", names_weights_copy)
 
+            ema_calculator_wn = NormEMA(alpha=0.1, names_weights_copy=names_weights_copy, device=self.device) # To calculate the moving average of weight norm
+            ema_calculator_gn = NormEMA(alpha=0.1, names_weights_copy=names_weights_copy, device=self.device) # To calculate the moving average of gradient norm
+
             for num_step in range(num_steps):
                 support_loss, support_preds, support_loss_seperate  = self.net_forward(
                     x=x_support_set_task,
@@ -321,12 +324,22 @@ class MAMLFewShotClassifier(nn.Module):
                     # 1) Calculate weight norm && moving average of weight norm
                     for key, weight in names_weights_copy.items():
                         weight_norm = torch.norm(weight, p=2)
+
+                        ema_calculator_wn.update(key, weight_norm)
+                        ema_value_wn = ema_calculator_wn.get_EMA(key)
+
                         per_step_task_embedding.append(weight_norm)
+                        per_step_task_embedding.append(ema_value_wn)
 
                     # 2) Calculate gradient norm && moving average of gradient norm
                     for key, grad in names_grads_copy.items():
                         gradient_norm = torch.norm(grad, p=2)
+
+                        ema_calculator_gn.update(key, gradient_norm)
+                        ema_value_gn = ema_calculator_gn.get_EMA(key)
+
                         per_step_task_embedding.append(gradient_norm)
+                        per_step_task_embedding.append(ema_value_gn)
 
                     per_step_task_embedding = torch.stack(per_step_task_embedding)
 
