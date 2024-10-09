@@ -57,5 +57,5 @@
   "use_bias": true,
   "smoothing": false,
   "knowledge_distillation": false,
-  "momentum": "SGD"
+  "momentum": "AdamBelief"
 }
