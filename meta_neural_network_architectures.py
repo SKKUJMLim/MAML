@@ -956,6 +956,9 @@ class VGGReLUNormNetwork(nn.Module):
                                                       backup_running_statistics=backup_running_statistics,
                                                       num_step=num_step)
 
+            # for grad-cam
+            feature_map = out
+
             if self.args.max_pooling:
                 out = F.max_pool2d(input=out, kernel_size=(2, 2), stride=2, padding=0)
 
@@ -964,12 +967,11 @@ class VGGReLUNormNetwork(nn.Module):
 
         out = out.view(out.size(0), -1)
 
-        # feature normalization
-        # out = out / torch.norm(out, p=2)
+
 
         out = self.layer_dict['linear'](out, param_dict['linear'])
 
-        return out
+        return out, feature_map
 
     def re_init(self):
         # for param in self.parameters():
