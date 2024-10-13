@@ -9,7 +9,7 @@
   "dataset_name":"tiered_imagenet",
   "dataset_path":"tiered_imagenet",
   "reset_stored_paths":false,
-  "experiment_name":"MAML+Arbiter_tieredimagenet_5way_1shot",
+  "experiment_name":"MAML_tiredimagenet_5way_1shot",
   "train_seed": 0, "val_seed": 0,
   "indexes_of_folders_indicating_class": [-3, -2],
   "sets_are_pre_split": true,

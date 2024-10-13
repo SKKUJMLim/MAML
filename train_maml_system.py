@@ -17,6 +17,8 @@ from multiprocessing import freeze_support
 ## python train_maml_system.py --name_of_args_json_file experiment_config/MAML_filter64.json --gpu_to_use 0
 ## python train_maml_system.py --name_of_args_json_file experiment_config/MAML_filter128.json --gpu_to_use 0
 ## python train_maml_system.py --name_of_args_json_file experiment_config/MAML_1shot.json --gpu_to_use 0
+## python train_maml_system.py --name_of_args_json_file experiment_config/MAML_tired_imagenet_5way_1shot_filter128.json --gpu_to_use 0
+## python train_maml_system.py --name_of_args_json_file experiment_config/MAML_tired_imagenet_5way_5shot_filter128.json --gpu_to_use 0
 
 '''GAP experiment'''
 ## python train_maml_system.py --name_of_args_json_file experiment_config/MAML+GAP_5way_5shot.json --gpu_to_use 0
@@ -26,8 +28,8 @@ from multiprocessing import freeze_support
 ## python train_maml_system.py --name_of_args_json_file experiment_config/resnet/miniimagenet/MAML+Arbiter_5way_1shot_resnet.json --gpu_to_use 0
 ## python train_maml_system.py --name_of_args_json_file experiment_config/resnet/miniimagenet/MAML+Arbiter_5way_5shot_resnet.json --gpu_to_use 0
 # 2) tiered imagenet
-## python train_maml_system.py --name_of_args_json_file experiment_config/resnet/tiredimagenet/MAML+Arbiter_tiered_imagenet_5way_1shot_resnet.json --gpu_to_use 0
-## python train_maml_system.py --name_of_args_json_file experiment_config/resnet/tiredimagenet/MAML+Arbiter_tiered_imagenet_5way_5shot_resnet.json --gpu_to_use 0
+## python train_maml_system.py --name_of_args_json_file experiment_config/resnet/tiredimagenet/MAML+Arbiter_tired_imagenet_5way_1shot_resnet.json --gpu_to_use 0
+## python train_maml_system.py --name_of_args_json_file experiment_config/resnet/tiredimagenet/MAML+Arbiter_tired_imagenet_5way_5shot_resnet.json --gpu_to_use 0
 
 
 ''' VGG experiment'''
