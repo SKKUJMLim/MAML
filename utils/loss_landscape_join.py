@@ -30,6 +30,8 @@ class landscape(nn.Module):
         model = self.model.cuda()
         model2 = self.model2.cuda()
 
+        print("inputs shape== " ,inputs.shape)
+
         inputs, targets = inputs.cuda(), targets.cuda()
 
         hessian_comp = my_hessian.my_hessian(model, data=(inputs, targets), cuda=True)
@@ -53,12 +55,12 @@ class landscape(nn.Module):
 
         for lam in lams:
             model_perb = self.get_params(model, model_perb, top_eigenvector[0], lam)
-            preds = model_perb.forward(x=inputs, num_step=5)
+            preds, _ = model_perb.forward(x=inputs, num_step=5)
             loss = F.cross_entropy(input=preds, target=targets)
             loss_list.append(loss.item())
 
             model2_perb = self.get_params(model2, model2_perb, top_eigenvector2[0], lam)
-            preds = model2_perb.forward(x=inputs, num_step=5)
+            preds, _ = model2_perb.forward(x=inputs, num_step=5)
             loss = F.cross_entropy(input=preds, target=targets)
             loss_list2.append(loss.item())
 
@@ -125,9 +127,19 @@ class landscape(nn.Module):
     def save_landscape_2dimage(self, lams, loss_list, loss_list2, title):
 
         fig, ax = plt.subplots()
-        plt.plot(lams, loss_list, lams, loss_list2, 'r-', lw=3)
-        plt.ylabel('Loss')
-        plt.xlabel('Perturbation')
+        # plt.plot(lams, loss_list, lams, loss_list2, 'r-', lw=3)
+        plt.plot(lams, loss_list, 'b-', label='MAML', lw=1)
+        plt.plot(lams, loss_list2, 'r-', label='Meta-GNA', lw=1)
+        plt.ylabel('Loss', fontsize=14)
+        plt.xlabel('Perturbation', fontsize=14)
+
+        plt.grid(True)  # 격자 무늬 추가
+        ax.tick_params(axis='both', labelsize=12)  # x축과 y축 값의 글씨 크기 설정
+
+        # ax.set_facecolor('skyblue')  # 배경을 파란색으로 설정
+
+        # 범례 추가
+        plt.legend(loc='upper center')
 
         # 축 범위 지정
         plt.ylim([0, 8])
