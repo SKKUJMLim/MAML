@@ -139,7 +139,7 @@ class landscape(nn.Module):
         # ax.set_facecolor('skyblue')  # 배경을 파란색으로 설정
 
         # 범례 추가
-        plt.legend(loc='upper center')
+        plt.legend(loc='upper center', fontsize=14)
 
         # 축 범위 지정
         plt.ylim([0, 8])
