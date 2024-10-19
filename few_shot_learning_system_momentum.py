@@ -299,7 +299,7 @@ class MAMLFewShotClassifier(nn.Module):
             ema_calculator_gn = NormEMA(alpha=0.1, names_weights_copy=names_weights_copy, device=self.device) # To calculate the moving average of gradient norm
 
             for num_step in range(num_steps):
-                support_loss, support_preds, support_loss_seperate  = self.net_forward(
+                support_loss, support_preds, support_loss_seperate, feature_map  = self.net_forward(
                     x=x_support_set_task,
                     y=y_support_set_task,
                     weights=names_weights_copy,
@@ -374,14 +374,14 @@ class MAMLFewShotClassifier(nn.Module):
                 #     ema_calculator_gn.update(key, gradient_norm)
 
                 if use_multi_step_loss_optimization and training_phase and epoch < self.args.multi_step_loss_num_epochs:
-                    target_loss, target_preds, _ = self.net_forward(x=x_target_set_task,
+                    target_loss, target_preds, _, _ = self.net_forward(x=x_target_set_task,
                                                                  y=y_target_set_task, weights=names_weights_copy,
                                                                  backup_running_statistics=False, training=True,
                                                                  num_step=num_step)
 
                     task_losses.append(per_step_loss_importance_vectors[num_step] * target_loss)
                 elif num_step == (self.args.number_of_training_steps_per_iter - 1):
-                    target_loss, target_preds, _ = self.net_forward(x=x_target_set_task,
+                    target_loss, target_preds, _, _ = self.net_forward(x=x_target_set_task,
                                                                  y=y_target_set_task, weights=names_weights_copy,
                                                                  backup_running_statistics=False, training=True,
                                                                  num_step=num_step, training_phase=training_phase,
@@ -428,14 +428,15 @@ class MAMLFewShotClassifier(nn.Module):
         :return: the crossentropy losses with respect to the given y, the predictions of the base model.
         """
 
-        preds = self.classifier.forward(x=x, params=weights,
-                                        training=training,
-                                        backup_running_statistics=backup_running_statistics, num_step=num_step)
+        preds, feature_map = self.classifier.forward(x=x, params=weights,
+                                                     training=training,
+                                                     backup_running_statistics=backup_running_statistics,
+                                                     num_step=num_step)
 
         loss = F.cross_entropy(input=preds, target=y)
         loss_seperate = F.cross_entropy(input=preds, target=y, reduction='none')
 
-        return loss, preds, loss_seperate
+        return loss, preds, loss_seperate, feature_map
 
     def trainable_parameters(self):
             """

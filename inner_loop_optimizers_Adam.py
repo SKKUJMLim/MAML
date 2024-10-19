@@ -103,6 +103,8 @@ class GradientDescentLearningRule(nn.Module):
         self.norm_information['loss_mean'] = loss_values.mean()
         self.norm_information['loss_var'] = loss_values.var()
         self.norm_information['loss_std'] = loss_values.std()
+        self.norm_information['loss_max'] = loss_values.max()
+        self.norm_information['loss_min'] = loss_values.min()
 
         pre_all_grads = []
 
