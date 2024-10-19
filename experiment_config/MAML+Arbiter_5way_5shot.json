@@ -16,7 +16,7 @@
   "train_val_test_split": [0.64, 0.16, 0.20],
   "evaluate_on_test_set_only": false,
 
-  "total_epochs": 100,
+  "total_epochs": 150,
   "total_iter_per_epoch":500, "continue_from_epoch": -2,
   "num_evaluation_tasks":600,
   "multi_step_loss_num_epochs": 15,
@@ -35,7 +35,7 @@
 
   "dropout_rate_value":0.0,
   "min_learning_rate":0.0001,
-  "meta_learning_rate":0.0001,   "total_epochs_before_pause": 101,
+  "meta_learning_rate":0.0001,   "total_epochs_before_pause": 151,
   "first_order_to_second_order_epoch":-1,
   "weight_decay": 0.0,
 
