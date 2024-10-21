@@ -124,6 +124,24 @@ class landscape(nn.Module):
 
         self.save_landscape_3dimage(loss_list, loss_list2, title)
 
+
+
+    def show_density(self, inputs, targets, title):
+
+        model = self.model.cuda()
+        model2 = self.model2.cuda()
+
+        print("inputs shape== " ,inputs.shape)
+
+        inputs, targets = inputs.cuda(), targets.cuda()
+
+        hessian_comp = my_hessian.my_hessian(model, data=(inputs, targets), cuda=True)
+        hessian_comp2 = my_hessian.my_hessian(model2, data=(inputs, targets), cuda=True)
+
+        trace1 = hessian_comp.trace()
+        trace2 = hessian_comp2.trace()
+
+
     def save_landscape_2dimage(self, lams, loss_list, loss_list2, title):
 
         fig, ax = plt.subplots()
