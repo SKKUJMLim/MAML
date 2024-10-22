@@ -14,7 +14,7 @@ def get_args():
     ## Domain Dapatation
     # os.environ['TEST_DATASET'] = "tiered_imagenet" # https://mtl.yyliu.net/download/Lmzjm9tX.html
     # os.environ['TEST_DATASET'] = "CIFAR_FS" # https://drive.google.com/file/d/1pTsCCMDj45kzFYgrnO67BWVbKs48Q3NI/view
-    os.environ['TEST_DATASET'] = "CUB" # https://data.caltech.edu/records/65de6-vp158
+    # os.environ['TEST_DATASET'] = "CUB" # https://data.caltech.edu/records/65de6-vp158
     # print("os.environ['TEST_DATASET'] === ", os.environ['TEST_DATASET'])
 
     parser = argparse.ArgumentParser(description='Welcome to the L2F training and inference system')
