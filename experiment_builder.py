@@ -280,6 +280,8 @@ class ExperimentBuilder(object):
 
         # top_n_idx = [57,48,45,52,50]
 
+        Adapation_start_time = time.time()
+
         for idx, model_idx in enumerate(top_n_idx):
             self.state = \
                 self.model.load_model(model_save_dir=self.saved_models_filepath, model_name="train_model",
@@ -296,6 +298,9 @@ class ExperimentBuilder(object):
                                                                                model_idx=idx,
                                                                                per_model_per_batch_preds=per_model_per_batch_preds,
                                                                                pbar_test=pbar_test)
+
+        total_Adapation_time = time.time() - Adapation_start_time
+
         # for i in range(top_n_models):
         #     print("test assertion", 0)
         #     print(per_model_per_batch_targets[0], per_model_per_batch_targets[i])
@@ -317,7 +322,7 @@ class ExperimentBuilder(object):
         # #print('conf by std: {}'.format(1.96 * accuracy_std / np.sqrt(per_batch_targets.size)))
         # test_losses = {"test_accuracy_mean": accuracy, "test_accuracy_conf": conf}
 
-        test_losses = {"test_accuracy_mean": accuracy, "test_accuracy_std": accuracy_std}
+        test_losses = {"test_accuracy_mean": accuracy, "test_accuracy_std": accuracy_std, "total_Adapation_time": total_Adapation_time}
 
         _ = save_statistics(self.logs_filepath,
                             list(test_losses.keys()),
@@ -409,3 +414,4 @@ class ExperimentBuilder(object):
                             sys.exit()
 
             self.evaluated_test_set_using_the_best_models(top_n_models=5)
+

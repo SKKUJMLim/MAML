@@ -1,7 +1,8 @@
 from data import MetaLearningSystemDataLoader
 from experiment_builder import ExperimentBuilder
 
-from few_shot_learning_system import MAMLFewShotClassifier
+# from few_shot_learning_system import MAMLFewShotClassifier
+from few_shot_learning_system_ALFA import MAMLFewShotClassifier
 # from few_shot_learning_system_LSTMArbiter import MAMLFewShotClassifier
 
 from utils.parser_utils import get_args
@@ -22,8 +23,8 @@ from multiprocessing import freeze_support
 ## python train_maml_system.py --name_of_args_json_file experiment_config/MAML_tired_imagenet_5way_1shot_filter128.json --gpu_to_use 0
 ## python train_maml_system.py --name_of_args_json_file experiment_config/MAML_tired_imagenet_5way_5shot_filter128.json --gpu_to_use 0
 
-'''GAP experiment'''
-## python train_maml_system.py --name_of_args_json_file experiment_config/MAML+GAP_5way_5shot.json --gpu_to_use 0
+'''ALFA experiment'''
+## python train_maml_system.py --name_of_args_json_file experiment_config/ALFA+MAML_5way_5shot.json --gpu_to_use 0
 
 ''' Resnet experiment'''
 # 1) mini imagenet
