@@ -140,13 +140,13 @@ class MAMLFewShotClassifier(nn.Module):
         self.scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer=self.optimizer, T_max=self.args.total_epochs,
                                                               eta_min=self.args.min_learning_rate)
 
-        trainable_params = sum(p.numel() for p in self.trainable_parameters())
+        trainable_params = sum(p.numel() for p in self.classifier.parameters() if p.requires_grad)
         print(f"Trainable parameters: {trainable_params}")
 
         if self.args.arbiter:
             arbiter_trainable_params = sum(p.numel() for p in self.arbiter.parameters())
             print(f"arbiter parameters: {arbiter_trainable_params}")
-        
+
 
         self.device = torch.device('cpu')
         if torch.cuda.is_available():
@@ -264,6 +264,7 @@ class MAMLFewShotClassifier(nn.Module):
         :param training_phase: Whether this is a training phase (True) or an evaluation phase (False)
         :return: A dictionary with the collected losses of the current outer forward propagation.
         """
+
         x_support_set, x_target_set, y_support_set, y_target_set = data_batch
 
         [b, ncs, spc] = y_support_set.shape

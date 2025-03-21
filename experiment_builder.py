@@ -234,6 +234,7 @@ class ExperimentBuilder(object):
         :param val_losses: A dictionary with the currrent val loss
         :return: The current time, to be used for the next epoch.
         """
+
         epoch_summary_losses = self.merge_two_dicts(first_dict=train_losses, second_dict=val_losses)
 
         if 'per_epoch_statistics' not in state:
@@ -339,6 +340,9 @@ class ExperimentBuilder(object):
         Runs a full training experiment with evaluations of the model on the val set at every epoch. Furthermore,
         will return the test set evaluation results on the best performing validation model.
         """
+
+        torch.cuda.reset_max_memory_allocated(self.device)
+
         with tqdm.tqdm(initial=self.state['current_iter'],
                        total=int(self.args.total_iter_per_epoch * self.args.total_epochs)) as pbar_train:
 
@@ -412,6 +416,9 @@ class ExperimentBuilder(object):
                             print("train_seed {}, val_seed: {}, at pause time".format(self.data.dataset.seed["train"],
                                                                                       self.data.dataset.seed["val"]))
                             sys.exit()
+
+            max_memory = torch.cuda.max_memory_allocated(self.device) / 1024 ** 2  # MB 단위 변환
+            print(f"Max GPU Memory Used: {max_memory:.2f} MB")
 
             self.evaluated_test_set_using_the_best_models(top_n_models=5)
 
